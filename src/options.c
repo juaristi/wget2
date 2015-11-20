@@ -682,6 +682,7 @@ static const struct option options[] = {
 	{ "inet6-only", &config.inet6_only, parse_bool, 0, '6' },
 	{ "input-encoding", &config.input_encoding, parse_string, 1, 0 },
 	{ "input-file", &config.input_file, parse_string, 1, 'i' },
+	{ "interactive", &config.interactive, parse_bool, 0, 'I' },
 	{ "iri", NULL, parse_bool, 0, 0 }, // Wget compatibility, in fact a do-nothing option
 	{ "keep-session-cookies", &config.keep_session_cookies, parse_bool, 0, 0 },
 	{ "level", &config.level, parse_integer, 1, 'l' },
@@ -958,10 +959,10 @@ static int G_GNUC_WGET_NONNULL((1)) _read_config(const char *cfgfile, int expand
 				error_printf_exit(_("Config file recursion detected in %s\n"), cfgfile);
 
 			_read_config(cfgfile, 0);
-			
+
 			level--;
 		}
-		
+
 		return 0;
 	}
 #endif

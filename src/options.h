@@ -170,7 +170,8 @@ struct config {
 		verbose,
 		print_version,
 		quiet,
-		debug;
+		debug,
+		interactive;
 };
 
 extern struct config

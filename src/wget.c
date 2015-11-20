@@ -56,6 +56,7 @@
 #include "blacklist.h"
 #include "host.h"
 #include "bar.h"
+#include "interactive.h"
 
 #if defined(HAVE_FNMATCH_H) && defined(HAVE_FNMATCH) && defined(FNM_CASEFOLD)
 #	include <fnmatch.h>
@@ -857,6 +858,7 @@ int main(int argc, const char *const *argv)
 	size_t bufsize = 0;
 	char *buf = NULL;
 	bool async_urls = false;
+	struct wget_interactive_opts *interactive_opts;
 
 	#include <locale.h>
 	setlocale(LC_ALL, "");
@@ -893,6 +895,13 @@ int main(int argc, const char *const *argv)
 
 	for (; n < argc; n++) {
 		add_url_to_queue(argv[n], config.base, config.local_encoding);
+	}
+
+	if (config.interactive) {
+		interactive_opts = wget_interactive_init();
+		wget_interactive_start(interactive_opts);
+		wget_interactive_deinit(interactive_opts);
+		goto out;
 	}
 
 	if (config.input_file) {

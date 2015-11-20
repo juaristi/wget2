@@ -195,6 +195,7 @@ PKG_PROG_PKG_CONFIG
 # Check for needed libraries
 AC_SEARCH_LIBS(socket, ws2_32)
 AC_SEARCH_LIBS(clock_gettime, rt)
+AC_SEARCH_LIBS(rl_bind_key, readline)
 
 AC_SEARCH_LIBS(pthread_create, pthread, [
   # for Solaris also see http://docs.oracle.com/cd/E18752_01/html/816-5137/compile-94611.html
@@ -372,7 +373,7 @@ AC_CHECK_FUNCS([\
  memmove memset mkdir munmap select setlocale socket strcasecmp\
  strchr strdup strerror strncasecmp strndup strrchr strstr strlcpy \
  vasprintf nanosleep usleep nl_langinfo futimens glob pwrite \
- qsort_r])
+ qsort_r rl_bind_key])
 
 # BSD / OSX have a qsort_r with swapped arguments
 if test x$ac_cv_func_qsort_r = xyes ; then
