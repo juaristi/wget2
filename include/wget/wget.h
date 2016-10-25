@@ -1507,6 +1507,14 @@ struct wget_http_response_t {
 		hsts_include_subdomains;
 	unsigned char
 		hsts : 1; // if hsts_maxage and hsts_include_subdomains are valid
+	wget_list_t
+		*hpkp_pins;
+	time_t
+		hpkp_maxage;
+	char
+		hpkp_include_subdomains;
+	unsigned char
+		hpkp : 1;
 	size_t
 		cur_downloaded;
 };
@@ -1574,6 +1582,8 @@ const char *
 	wget_http_parse_content_encoding(const char *s, char *content_encoding) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 const char *
 	wget_http_parse_content_disposition(const char *s, const char **filename) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
+wget_list_t *
+	wget_http_parse_public_key_pins(const char *s, time_t *maxage, char *include_subdomains) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
 const char *
 	wget_http_parse_strict_transport_security(const char *s, time_t *maxage, char *include_subdomains) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
 const char *
