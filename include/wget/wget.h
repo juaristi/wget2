@@ -987,6 +987,14 @@ int
 	wget_hsts_db_load(wget_hsts_db_t *hsts_db, const char *fname) LIBWGET_EXPORT;
 
 /*
+ * HTTP Public Key Pinning (HPKP)
+ */
+typedef struct _wget_hpkp_st wget_hpkp_t;
+typedef struct _wget_hpkp_db_st wget_hpkp_db_t;
+
+wget_hpkp_db_t *
+	wget_hpkp_db_init(void);
+/*
  * TLS session resumption
  */
 
