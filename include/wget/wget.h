@@ -1000,7 +1000,16 @@ typedef struct _wget_hpkp_st wget_hpkp_t;
 typedef struct _wget_hpkp_db_st wget_hpkp_db_t;
 
 wget_hpkp_db_t *
-	wget_hpkp_db_init(void);
+	wget_hpkp_db_init(void) LIBWGET_EXPORT;
+void
+	wget_hpkp_db_deinit(wget_hpkp_db_t **) LIBWGET_EXPORT;
+int
+	wget_hpkp_db_add(wget_hpkp_db_t *hpkp_db, wget_hpkp_t *hpkp_new) LIBWGET_EXPORT;
+wget_hpkp_t *
+	wget_hpkp_new(const char *host, time_t max_age, int include_subdomains) LIBWGET_EXPORT;
+void
+	wget_hpkp_add_public_key_base64(wget_hpkp_t *hpkp, const char *b64_pubkey) LIBWGET_EXPORT;
+
 /*
  * TLS session resumption
  */
@@ -1600,8 +1609,8 @@ const char *
 	wget_http_parse_content_encoding(const char *s, char *content_encoding) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 const char *
 	wget_http_parse_content_disposition(const char *s, const char **filename) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
-wget_list_t *
-	wget_http_parse_public_key_pins(const char *s, time_t *maxage, char *include_subdomains) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
+void
+	wget_http_parse_public_key_pins(const char *s, time_t *maxage, char *include_subdomains, wget_list_t **) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
 const char *
 	wget_http_parse_strict_transport_security(const char *s, time_t *maxage, char *include_subdomains) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
 const char *
