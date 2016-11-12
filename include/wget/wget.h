@@ -427,6 +427,11 @@ static inline unsigned int wget_base64_get_decoded_length(unsigned int len)
 	return ((len + 3) / 4) * 3 + 1;
 }
 
+static inline unsigned int wget_base64_get_encoded_length(unsigned int len)
+{
+	return ((len + 2) / 3) * 4 + 1;
+}
+
 int
 	wget_base64_is_string(const char *src) G_GNUC_WGET_PURE LIBWGET_EXPORT;
 size_t
