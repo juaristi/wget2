@@ -153,7 +153,7 @@ size_t wget_base64_decode(char *dst, const char *src, int n)
  */
 char *wget_base64_decode_alloc(const char *src, int n)
 {
-	char *dst = xmalloc(((n + 3) / 4) * 3 + 1);
+	char *dst = xmalloc(wget_base64_get_decoded_length(n));
 
 	wget_base64_decode(dst, src, n);
 
