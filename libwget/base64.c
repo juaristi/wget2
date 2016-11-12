@@ -97,7 +97,8 @@ int wget_base64_is_string(const char *src)
  * Decodes \p n bytes of the base64 string \p src.
  * The decoded bytes are written into \p dst and are 0-terminated.
  *
- * The size of \p dst has to be at minimum ((\p n + 3) / 4) * 3 + 1 bytes.
+ * The size of \p dst has to be at minimum the number of bytes returned
+ * by wget_base64_get_decoded_length().
  */
 size_t wget_base64_decode(char *dst, const char *src, int n)
 {
@@ -169,7 +170,8 @@ char *wget_base64_decode_alloc(const char *src, int n)
  * Encodes \p n bytes from \p src into a base64 string.
  * The encoded string is written into \p dst (0-terminated).
  *
- * The length of \p dst has to be at minimum ((\p n + 2) / 3) * 4 + 1 bytes.
+ * The length of \p dst has to be at minimum the number of bytes returned
+ * by wget_base64_get_encoded_length().
  */
 size_t wget_base64_encode(char *dst, const char *src, int n)
 {

@@ -422,15 +422,30 @@ void
  * Base64 routines
  */
 
+/**
+ * \ingroup libwget-base64
+ * @{
+ * \param[in] len Length of an arbitrary base64-encoded string
+ *
+ * \return Returns the length a base64-encoded string with length \p len
+ * will have after decoding.
+ */
 static inline unsigned int wget_base64_get_decoded_length(unsigned int len)
 {
 	return ((len + 3) / 4) * 3 + 1;
 }
 
+/**
+ * \param[in] len Length of an arbitrary string
+ *
+ * \return Returns the length a string with length \p len
+ * will have after encoding it in base64.
+ */
 static inline unsigned int wget_base64_get_encoded_length(unsigned int len)
 {
 	return ((len + 2) / 3) * 4 + 1;
 }
+/**@}*/
 
 int
 	wget_base64_is_string(const char *src) G_GNUC_WGET_PURE LIBWGET_EXPORT;
