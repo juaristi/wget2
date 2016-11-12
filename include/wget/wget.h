@@ -54,9 +54,9 @@
 // see https://www.gnu.org/software/gnulib/manual/html_node/Exported-Symbols-of-Shared-Libraries.html
 #if defined BUILDING_LIBWGET && HAVE_VISIBILITY
 #	define LIBWGET_EXPORT __attribute__ ((__visibility__("default")))
-#elif defined BUILDING_LIBWGET && defined _MSC_VER
+#elif defined BUILDING_LIBWGET && defined _MSC_VER && !defined LIBWGET_STATIC
 #	define LIBWGET_EXPORT __declspec(dllexport)
-#elif defined _MSC_VER
+#elif defined _MSC_VER && !defined LIBWGET_STATIC
 #	define LIBWGET_EXPORT __declspec(dllimport)
 #else
 #	define LIBWGET_EXPORT
@@ -90,7 +90,7 @@
 #	define G_GNUC_WGET_PRINTF_FORMAT(a, b) __attribute__ ((format (printf, a, b)))
 #	define G_GNUC_WGET_UNUSED __attribute__ ((unused))
 #else
-#	define G_GNUC_WGET_PRINT_FORMAT(a, b)
+#	define G_GNUC_WGET_PRINTF_FORMAT(a, b)
 #	define G_GNUC_WGET_UNUSED
 #endif
 
@@ -421,6 +421,11 @@ void
 /*
  * Base64 routines
  */
+
+static inline unsigned int wget_base64_get_decoded_length(unsigned int len)
+{
+	return ((len + 3) / 4) * 3 + 1;
+}
 
 int
 	wget_base64_is_string(const char *src) G_GNUC_WGET_PURE LIBWGET_EXPORT;
@@ -824,6 +829,8 @@ typedef struct wget_iri_st {
 		query_allocated : 1; // if set, free query in iri_free()
 	unsigned int
 		fragment_allocated : 1; // if set, free fragment in iri_free()
+	unsigned int
+		is_ip_address : 1; // if set, the hostname part is a literal IPv4 or IPv6 address
 } wget_iri_t;
 
 void
@@ -1324,6 +1331,9 @@ ssize_t
 	wget_tcp_read(wget_tcp_t *tcp, char *buf, size_t count) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 int
 	wget_tcp_ready_2_transfer(wget_tcp_t *tcp, int flags) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
+
+int
+	wget_ip_is_family(const char *host, int family) G_GNUC_WGET_PURE LIBWGET_EXPORT;
 
 /*
  * SSL routines
@@ -1842,9 +1852,9 @@ void
 void
 	wget_bar_print(wget_bar_t *bar, int slot, const char *s) LIBWGET_EXPORT;
 ssize_t
-	wget_bar_vprintf(wget_bar_t *bar, size_t slot, const char *fmt, va_list args) G_GNUC_WGET_PRINTF_FORMAT(3,0) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
+	wget_bar_vprintf(wget_bar_t *bar, int slot, const char *fmt, va_list args) G_GNUC_WGET_PRINTF_FORMAT(3,0) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 ssize_t
-	wget_bar_printf(wget_bar_t *bar, size_t slot, const char *fmt, ...) G_GNUC_WGET_PRINTF_FORMAT(3,4) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
+	wget_bar_printf(wget_bar_t *bar, int slot, const char *fmt, ...) G_GNUC_WGET_PRINTF_FORMAT(3,4) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 void
 	wget_bar_slot_begin(wget_bar_t *bar, int slot, const char *filename, ssize_t filesize) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 void

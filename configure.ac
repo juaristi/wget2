@@ -31,23 +31,6 @@ case $host_os in
 #    ;;
 esac
 
-#if test "$CFLAGS" = ""; then
-#  if test "$GCC" = "yes"; then
-#   CFLAGS="-g -std=gnu99 -pedantic -fPIC\
-# -Wall -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes\
-# -Wwrite-strings -Wformat=2 -Wformat -Wformat-security\
-# -Wsign-compare -Wextra -D_FORTIFY_SOURCE=2\
-# -Wcast-align -O2"
-#  fi
-#else
-#  CFLAGS="$CFLAGS -fPIC"
-#fi
-#if test "$LDFLAGS" = ""; then
-#  if test "$GCC" = "yes"; then
-##    LDFLAGS="-fPIE -pie -Wl,-z,relro,--as-needed"
-#    LDFLAGS="-fPIE -pie -Wl,--as-needed -ffunction-sections"
-#  fi
-#fi
 # Append EXTRA_CFLAGS to CFLAGS, if defined.
 if test "$EXTRA_CFLAGS" != ""; then
   CFLAGS="$CFLAGS $EXTRA_CFLAGS"
@@ -120,95 +103,75 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_CC_C_O
 
+# enable all possible compiler warnings in WARN_FLAGS
 #
-# gl_GCC_VERSION_IFELSE([major], [minor], [run-if-found], [run-if-not-found])
-# ------------------------------------------------
-# If $CPP is gcc-MAJOR.MINOR or newer, then run RUN-IF-FOUND.
-# Otherwise, run RUN-IF-NOT-FOUND.
-AC_DEFUN([gl_GCC_VERSION_IFELSE],
-  [AC_PREPROC_IFELSE(
-    [AC_LANG_PROGRAM(
-      [[
-#if ($1) < __GNUC__ || (($1) == __GNUC__ && ($2) <= __GNUC_MINOR__)
-/* ok */
-#else
-# error "your version of gcc is older than $1.$2"
-#endif
-      ]]),
-    ], [$3], [$4])
-  ]
-)
+# to enable by default: create a file '.manywarnings'
+# enable explicitly : ./configure --enable-manywarnings
+# disable explicitly: ./configure --disable-manywarnings
+wget_MANYWARNINGS(WARN_CFLAGS, C)
 
-#
-# check if compiler warnings are requested
-#
-AC_ARG_ENABLE([gcc-warnings],
-  [AS_HELP_STRING([--enable-gcc-warnings], [Turn on extra GCC warnings (for developers)])],
-  [gl_gcc_warnings=yes], [gl_gcc_warnings=no])
-AC_ARG_ENABLE([gcc-warnings],
-  [AS_HELP_STRING([--enable-gcc-warnings], [Turn on extra GCC warnings (for developers)])],
-  [case $enableval in
-     yes|no) ;;
-     *) AC_MSG_ERROR([bad value $enableval for gcc-warnings option]) ;;
-   esac
-     gl_gcc_warnings=$enableval
-  ], [
-    # GCC provides fine-grained control over diagnostics which
-    # is used in gnulib for example to suppress warnings from
-    # certain sections of code.  So if this is available and
-    # we're running from a git repo, then auto enable the warnings.
-    gl_gcc_warnings=no
-    gl_GCC_VERSION_IFELSE([4], [6],
-      [test -d "$srcdir"/.git \
-       && ! test -f "$srcdir"/.tarball-version \
-       && gl_gcc_warnings=yes]
-    )
-  ]
-)
+if test -n "$WARN_CFLAGS"; then
+  if test "$CCNAME" = "gcc"; then
+    # Set up list of unwanted warnings
+    nw=
+    nw="$nw -Wsystem-headers"       # System headers may trigger lot's of useless warnings
+    nw="$nw -Wvla"                  # This project is C99
+    nw="$nw -Wstack-protector"
+    nw="$nw -Wmissing-field-initializer"
+    nw="$nw -Wtraditional"
+    nw="$nw -Wtraditional-conversion"
+    nw="$nw -Wc++-compat"
+    nw="$nw -Wcast-qual"
+    nw="$nw -Wconversion"
+    nw="$nw -Wsign-conversion"
+    nw="$nw -Wunsuffixed-float-constants"
 
-if test "$gl_gcc_warnings" = yes; then
-  # gl_WARN_ADD([-Werror], [WERROR_CFLAGS])
+    # remove unwanted warn flags
+    wget_WORD_REMOVE([WARN_CFLAGS], [$WARN_CFLAGS], [$nw])
 
-  # Set up list of unwanted warnings
-  nw=
-  nw="$nw -Wsystem-headers"       # System headers may trigger lot's of useless warnings
-  nw="$nw -Wvla"                  # This project is C99
-  nw="$nw -Wstack-protector"
+    # add more flags as you like
+    WARN_CFLAGS="$WARN_CFLAGS -fdiagnostics-color=always"
+    # WARN_CFLAGS="$WARN_CFLAGS -Werror"
 
-  # Enable all GCC warnings not in this list.
-  gl_MANYWARN_ALL_GCC([warnings])
-  gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
-  for w in $warnings; do
-    gl_WARN_ADD([$w])
-  done
-  gl_WARN_ADD([-fdiagnostics-show-option])
-  gl_WARN_ADD([-fdiagnostics-color=always])
-  gl_WARN_ADD([-Wno-missing-field-initializers]) # Rely on missing field = 0.
+    # We use a slightly smaller set of warning options for lib/.
+    # Remove the following and save the result in GNULIB_WARN_CFLAGS.
+    # Removing is not enough if these switches are implicitly set by other
+    #  flags like -Wall or -Wextra. We have to explicitely unset them
+    #  with -Wno-....
+    nw=
+    nw="$nw -Wpedantic"
+    nw="$nw -Wunused-macros"
+    nw="$nw -Wsign-compare"
+    nw="$nw -Wunused-parameter"
+    nw="$nw -Wswitch-default"
+    nw="$nw -Wformat-nonliteral"
+    nw="$nw -Wsuggest-attribute=pure"
+    nw="$nw -Wunsafe-loop-optimizations"
+    nw="$nw -Wundef"
+    nw="$nw -Wswitch-enum"
+    wget_WORD_REMOVE([GNULIB_WARN_CFLAGS], [$WARN_CFLAGS], [$nw])
+
+    # disable options implicitly set by other options
+    GNULIB_WARN_CFLAGS="$GNULIB_WARN_CFLAGS -Wno-sign-compare -Wno-unused-parameter"
+
+  elif test "$CCNAME" = "clang"; then
+    # setup flags for this project
+    WARN_CFLAGS="$WARN_CFLAGS -Wno-system-headers -Wno-vla -Wno-cast-qual -Wno-padded"
+    WARN_CFLAGS="$WARN_CFLAGS -Wno-reserved-id-macro -Wno-sign-conversion  -Wno-disabled-macro-expansion"
+
+    # remove all flags from WARN_FLAGS that are already in CFLAGS
+    # wget_WORD_REMOVE([WARN_CFLAGS], [$WARN_CFLAGS], [$CFLAGS])
+
+    # disable verbose options
+    GNULIB_WARN_CFLAGS="$WARN_CFLAGS -Wno-sign-compare -Wno-unused-parameter -Wno-undef -Wno-format-nonliteral"
+    GNULIB_WARN_CFLAGS="$GNULIB_WARN_CFLAGS -Wno-conversion -Wno-disabled-macro-expansion -Wno-c++98-compat -Wno-gnu-statement-expression"
+
+    # remove all flags from GNULIB_WARN_FLAGS that are already in CFLAGS
+    # wget_WORD_REMOVE([GNULIB_WARN_CFLAGS], [$GNULIB_WARN_CFLAGS], [$CFLAGS])
+  fi
+
   AC_SUBST([WARN_CFLAGS])
-
-  # We use a slightly smaller set of warning options for lib/.
-  # Remove the following and save the result in GNULIB_WARN_CFLAGS.
-  # Removing is not enough if these switches are implicitly set by other
-  #  flags like -Wall or -Wextra. We have to explicitely unset them
-  #  with -Wno-....
-  nw=
-  nw="$nw -Wpedantic"
-  nw="$nw -Wunused-macros"
-  nw="$nw -Wsign-compare"
-  nw="$nw -Wunused-parameter"
-  nw="$nw -Wswitch-default"
-  nw="$nw -Wformat-nonliteral"
-  nw="$nw -Wsuggest-attribute=pure"
-  nw="$nw -Wunsafe-loop-optimizations"
-  gl_MANYWARN_COMPLEMENT([GNULIB_WARN_CFLAGS], [$WARN_CFLAGS], [$nw])
-
-  # disable options implicitly set by other options
-  GNULIB_WARN_CFLAGS="$GNULIB_WARN_CFLAGS -Wno-sign-compare -Wno-unused-parameter"
-#  bak="$WARN_CFLAGS"
-#  gl_WARN_ADD([-Wno-sign-compare])
- # gl_WARN_ADD([-Wno-unused-parameter])
   AC_SUBST([GNULIB_WARN_CFLAGS])
-#  WARN_CFLAGS="$bak"
 fi
 
 AC_ARG_ENABLE([fsanitize-ubsan],
@@ -487,7 +450,7 @@ AC_CHECK_HEADERS([\
 AC_FUNC_FORK
 AC_FUNC_MMAP
 AC_CHECK_FUNCS([\
- munmap strlcpy getuid])
+ strlcpy getuid])
 
 AC_CONFIG_FILES([Makefile
                  lib/Makefile

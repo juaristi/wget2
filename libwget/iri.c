@@ -204,7 +204,7 @@ wget_iri_t *wget_iri_parse(const char *url, const char *encoding)
 /*
 	// first unescape, than convert to UTF-8
 	if (strchr(url, '%')) {
-		char *unesc_url = strdup(url);
+		char *unesc_url = wget_strdup(url);
 
 		wget_percent_unescape(unesc_url);
 
@@ -373,6 +373,10 @@ wget_iri_t *wget_iri_parse(const char *url, const char *encoding)
 			iri->host = p;
 			iri->host_allocated = 1;
 		}
+
+		// Finally, if the host is a literal IPv4 or IPv6 address, mark it as so
+		if (wget_ip_is_family(iri->host, WGET_NET_FAMILY_IPV4) || wget_ip_is_family(iri->host, WGET_NET_FAMILY_IPV6))
+			iri->is_ip_address = 1;
 	}
 	else {
 		if (iri->scheme == WGET_IRI_SCHEME_HTTP || iri->scheme == WGET_IRI_SCHEME_HTTPS) {
@@ -426,7 +430,7 @@ wget_iri_t *wget_iri_clone(wget_iri_t *iri)
 
 	// adjust pointers
 	if (iri->host_allocated)
-		clone->host = strdup(iri->host);
+		clone->host = wget_strdup(iri->host);
 	else
 		clone->host = iri->host ? (char *)clone + (size_t) (iri->host - (const char *)iri) : NULL;
 
