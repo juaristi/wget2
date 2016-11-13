@@ -425,9 +425,9 @@ void
 /**
  * \ingroup libwget-base64
  * @{
- * \param[in] len Length of an arbitrary base64-encoded string
+ * \param[in] len Length of an arbitrary base64-encoded string, in bytes
  *
- * \return Returns the length a base64-encoded string with length \p len
+ * \return Returns the length in bytes a base64-encoded string with length \p len
  * will have after decoding.
  */
 static inline unsigned int wget_base64_get_decoded_length(unsigned int len)
@@ -436,9 +436,9 @@ static inline unsigned int wget_base64_get_decoded_length(unsigned int len)
 }
 
 /**
- * \param[in] len Length of an arbitrary string
+ * \param[in] len Length of an arbitrary string, in bytes
  *
- * \return Returns the length a string with length \p len
+ * \return Returns the length a string (in bytes) with length \p len
  * will have after encoding it in base64.
  */
 static inline unsigned int wget_base64_get_encoded_length(unsigned int len)

@@ -95,7 +95,7 @@ int wget_base64_is_string(const char *src)
  * \return Number of bytes written into \p dst
  *
  * Decodes \p n bytes of the base64 string \p src.
- * The decoded bytes are written into \p dst and are 0-terminated.
+ * The decoded bytes are written into \p dst.
  *
  * The size of \p dst has to be at minimum the number of bytes returned
  * by wget_base64_get_decoded_length().
@@ -138,14 +138,13 @@ size_t wget_base64_decode(char *dst, const char *src, int n)
 		break;
 	}
 
-	*dst = 0;
 	return (size_t) (dst - old);
 }
 
 /**
  * \param[in] src Base64 string to be decoded
  * \param[in] n Length of \p src
- * \return Decoded bytes, zero terminated
+ * \return Decoded bytes
  *
  * Decodes \p n bytes of the base64 string \p src.
  * The decoded bytes are returned in an allocated buffer.
