@@ -100,6 +100,7 @@ struct config {
 		*cookie_db;
 	char
 		*hsts_file,
+		*hpkp_file,
 		*tls_session_file,
 		*ocsp_file,
 		*config_file,
