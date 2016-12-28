@@ -1613,7 +1613,7 @@ const char *
 	wget_http_parse_content_encoding(const char *s, char *content_encoding) G_GNUC_WGET_NONNULL_ALL LIBWGET_EXPORT;
 const char *
 	wget_http_parse_content_disposition(const char *s, const char **filename) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
-void
+int
 	wget_http_parse_public_key_pins(const char *s, time_t *maxage, char *include_subdomains, wget_list_t **) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
 const char *
 	wget_http_parse_strict_transport_security(const char *s, time_t *maxage, char *include_subdomains) G_GNUC_WGET_NONNULL((1)) LIBWGET_EXPORT;
